@@ -1,0 +1,18 @@
+name: FrenchTTS
+options:
+  bundleIdPrefix: com.example
+  xcodeVersion: "15.0"
+  deploymentTarget:
+    iOS: "15.0"
+
+targets:
+  FrenchTTS:
+    type: application
+    platform: iOS
+    sources:
+      - path: .
+        excludes:
+          - project.yml
+          - README.md
+    info:
+      path: Info.plist
