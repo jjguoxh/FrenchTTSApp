@@ -4,6 +4,7 @@ options:
   xcodeVersion: "15.0"
   deploymentTarget:
     iOS: "15.0"
+    macOS: "12.0"
 
 targets:
   FrenchTTS:
@@ -14,5 +15,25 @@ targets:
         excludes:
           - project.yml
           - README.md
-    info:
-      path: Info.plist
+          - FrenchTTSMacApp.swift
+          - PDFPageView_mac.swift
+          - ContentView_mac.swift
+          - Info.plist
+          - Info_Mac.plist
+    settings:
+      INFOPLIST_FILE: Info.plist
+      PRODUCT_BUNDLE_IDENTIFIER: com.example.FrenchTTS
+
+  FrenchTTS_Mac:
+    type: application
+    platform: macOS
+    sources:
+      - path: FrenchTTSMacApp.swift
+      - path: ContentView_mac.swift
+      - path: PDFPageView_mac.swift
+      - path: PDFManager.swift
+      - path: SpeechManager.swift
+    settings:
+      INFOPLIST_FILE: Info_Mac.plist
+      PRODUCT_BUNDLE_IDENTIFIER: com.example.FrenchTTS-Mac
+      ENABLE_PREVIEWS: YES

@@ -9,6 +9,8 @@ class SpeechManager: NSObject, ObservableObject {
     @Published var rate: Float = 0.5
     @Published var selectedGender: AVSpeechSynthesisVoiceGender = .female
     @Published var isSpeaking: Bool = false
+    @Published var isPaused: Bool = false
+    @Published var currentRange: NSRange?
     
     override init() {
         super.init()
@@ -16,21 +18,33 @@ class SpeechManager: NSObject, ObservableObject {
     }
     
     func speak() {
-        // 如果正在说话，先停止
         if synthesizer.isSpeaking {
-            synthesizer.stopSpeaking(at: .immediate)
+            if synthesizer.isPaused {
+                synthesizer.continueSpeaking()
+                isPaused = false
+                isSpeaking = true
+            } else {
+                synthesizer.pauseSpeaking(at: .word)
+                isPaused = true
+                isSpeaking = false // UI uses this to toggle play/pause icon
+            }
+        } else {
+            let utterance = AVSpeechUtterance(string: text)
+            utterance.rate = rate
+            utterance.voice = getVoice(for: selectedGender)
+            
+            synthesizer.speak(utterance)
+            isSpeaking = true
+            isPaused = false
         }
-        
-        let utterance = AVSpeechUtterance(string: text)
-        utterance.rate = rate
-        utterance.voice = getVoice(for: selectedGender)
-        
-        synthesizer.speak(utterance)
     }
     
     func stop() {
-        if synthesizer.isSpeaking {
+        if synthesizer.isSpeaking || synthesizer.isPaused {
             synthesizer.stopSpeaking(at: .immediate)
+            isSpeaking = false
+            isPaused = false
+            currentRange = nil
         }
     }
     
@@ -51,13 +65,32 @@ class SpeechManager: NSObject, ObservableObject {
 extension SpeechManager: AVSpeechSynthesizerDelegate {
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
         isSpeaking = true
+        isPaused = false
     }
     
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         isSpeaking = false
+        isPaused = false
+        currentRange = nil
     }
     
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         isSpeaking = false
+        isPaused = false
+        currentRange = nil
+    }
+    
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didPause utterance: AVSpeechUtterance) {
+        isSpeaking = false
+        isPaused = true
+    }
+    
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didContinue utterance: AVSpeechUtterance) {
+        isSpeaking = true
+        isPaused = false
+    }
+    
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, willSpeakRangeOfSpeechString characterRange: NSRange, utterance: AVSpeechUtterance) {
+        currentRange = characterRange
     }
 }
