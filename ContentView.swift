@@ -52,8 +52,7 @@ struct ContentView: View {
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .onChange(of: pdfManager.currentPageIndex) { _ in
-                            // 翻页时自动识别文本
-                            pdfManager.recognizeText { recognizedText in
+                            pdfManager.scheduleRecognizeText(delay: 0.0) { recognizedText in
                                 speechManager.text = recognizedText
                             }
                         }
@@ -145,13 +144,20 @@ struct ContentView: View {
                         defer { url.stopAccessingSecurityScopedResource() }
                         pdfManager.loadPDF(from: url)
                         
-                        // 加载第一页后立即识别
-                        pdfManager.recognizeText { recognizedText in
+                        pdfManager.scheduleRecognizeText(delay: 0.0) { recognizedText in
                             speechManager.text = recognizedText
                         }
                     }
                 case .failure(let error):
                     print("导入失败: \(error.localizedDescription)")
+                }
+            }
+            .onAppear {
+                pdfManager.restoreLastSession()
+                if pdfManager.pdfDocument != nil {
+                    pdfManager.scheduleRecognizeText(delay: 0.0) { recognizedText in
+                        speechManager.text = recognizedText
+                    }
                 }
             }
         }

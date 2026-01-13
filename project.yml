@@ -20,6 +20,9 @@ targets:
           - ContentView_mac.swift
           - Info.plist
           - Info_Mac.plist
+          - IconGenerator.swift
+          - AppIconView.swift
+      - path: Assets.xcassets
     settings:
       INFOPLIST_FILE: Info.plist
       PRODUCT_BUNDLE_IDENTIFIER: com.example.FrenchTTS
