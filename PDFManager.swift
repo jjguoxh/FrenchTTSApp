@@ -12,8 +12,7 @@ class PDFManager: ObservableObject {
     private var recognizeWorkItem: DispatchWorkItem?
     private(set) var currentURL: URL?
     
-    private let kvs = NSUbiquitousKeyValueStore.default
-    private let bookmarkKey = "lastPDFBookmark"
+    private let defaults = UserDefaults.standard
     private let pageKey = "lastPDFPageIndex"
     private let localPathKey = "lastLocalPDFPath"
     private let savedFolderName = "SavedPDFs"
@@ -137,14 +136,14 @@ class PDFManager: ObservableObject {
     
     private func persistSession() {
         guard let url = currentURL else { return }
-        kvs.set(url.lastPathComponent, forKey: localPathKey)
-        kvs.set(Int64(currentPageIndex), forKey: pageKey)
-        kvs.synchronize()
+        defaults.set(url.lastPathComponent, forKey: localPathKey)
+        defaults.set(currentPageIndex, forKey: pageKey)
+        defaults.synchronize()
     }
     
     func restoreLastSession() {
-        kvs.synchronize()
-        guard let fileName = kvs.string(forKey: localPathKey) else { return }
+        defaults.synchronize()
+        guard let fileName = defaults.string(forKey: localPathKey) else { return }
         let folderURL = documentsDirectory().appendingPathComponent(savedFolderName, isDirectory: true)
         let fileURL = folderURL.appendingPathComponent(fileName)
         if FileManager.default.fileExists(atPath: fileURL.path) {
@@ -152,7 +151,7 @@ class PDFManager: ObservableObject {
                 self.pdfDocument = document
                 self.totalPages = document.pageCount
                 self.currentURL = fileURL
-                var savedPage = Int(kvs.longLong(forKey: pageKey))
+                var savedPage = defaults.integer(forKey: pageKey)
                 if savedPage < 0 || savedPage >= totalPages { savedPage = 0 }
                 self.currentPageIndex = savedPage
             }

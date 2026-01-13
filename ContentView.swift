@@ -7,6 +7,17 @@ struct ContentView: View {
     @StateObject private var pdfManager = PDFManager()
     @State private var showFileImporter = false
     
+    private var pageBinding: Binding<Double> {
+        Binding<Double>(
+            get: { Double(pdfManager.currentPageIndex) },
+            set: {
+                let maxIndex = max(0, pdfManager.totalPages - 1)
+                let clamped = max(0, min(Int($0), maxIndex))
+                pdfManager.currentPageIndex = clamped
+            }
+        )
+    }
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
@@ -83,14 +94,14 @@ struct ContentView: View {
                 Divider()
                 
                 // 3. 底部紧凑控制区
-                HStack(alignment: .center, spacing: 12) {
+                HStack(alignment: .center, spacing: 8) {
                     // 播放/暂停按钮
                     Button(action: {
                         speechManager.speak()
                     }) {
                         Image(systemName: speechManager.isSpeaking ? "pause.circle.fill" : "play.circle.fill")
                             .resizable()
-                            .frame(width: 48, height: 48)
+                            .frame(width: 24, height: 24)
                             .foregroundColor(speechManager.isSpeaking ? .orange : .blue)
                     }
                     
@@ -100,7 +111,7 @@ struct ContentView: View {
                     }) {
                         Image(systemName: "stop.circle.fill")
                             .resizable()
-                            .frame(width: 48, height: 48)
+                            .frame(width: 24, height: 24)
                             .foregroundColor(.red)
                     }
                     
@@ -108,11 +119,23 @@ struct ContentView: View {
                     VStack(spacing: 8) {
                         // 语速滑杆
                         HStack(spacing: 8) {
+                            if pdfManager.totalPages > 0 {
+                                Slider(value: pageBinding, in: 0...Double(max(0, pdfManager.totalPages - 1)), step: 1)
+                                    .controlSize(.small)
+                                    .frame(height: 18)
+                                    .frame(width: 150)
+                                Text("\(pdfManager.currentPageIndex + 1)/\(pdfManager.totalPages)")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                                Divider()
+                            }
                             Image(systemName: "tortoise.fill")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                             
                             Slider(value: $speechManager.rate, in: AVSpeechUtteranceMinimumSpeechRate...AVSpeechUtteranceMaximumSpeechRate)
+                                .controlSize(.small)
+                                .frame(height: 18)
                             
                             Image(systemName: "hare.fill")
                                 .font(.caption2)
@@ -128,8 +151,9 @@ struct ContentView: View {
                     }
                     .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 12)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 2)
+                .frame(height: 32)
                 .background(Color(.secondarySystemBackground))
             }
             .navigationBarHidden(true)

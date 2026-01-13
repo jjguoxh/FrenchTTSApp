@@ -74,7 +74,9 @@ class SpeechManager: NSObject, ObservableObject {
             let nsRange = NSRange(range, in: fullText)
             
             let nlCode = (tag?.rawValue ?? "")
-            let speechCode = mapToSpeechLanguageCode(nlCode: nlCode, fallback: sentenceContainsChinese(sentence) ? "zh-CN" : "fr-FR")
+            let speechCode = mapToSpeechLanguageCode(nlCode: nlCode, fallback: "fr-FR")
+            if speechCode.lowercased().hasPrefix("zh") { return true }
+            if !speechCode.lowercased().hasPrefix("fr") { return true }
             
             let utterance = AVSpeechUtterance(string: sentence)
             utterance.voice = getVoice(for: selectedGender, languageCode: speechCode)
@@ -93,8 +95,6 @@ class SpeechManager: NSObject, ObservableObject {
     private func mapToSpeechLanguageCode(nlCode: String, fallback: String) -> String {
         switch nlCode.lowercased() {
         case "fr", "fr-fr": return "fr-FR"
-        case "zh", "zh-hans": return "zh-CN"
-        case "en", "en-us": return "en-US"
         default: return fallback
         }
     }
