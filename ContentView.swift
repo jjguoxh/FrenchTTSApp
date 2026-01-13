@@ -101,7 +101,7 @@ struct ContentView: View {
                     }) {
                         Image(systemName: speechManager.isSpeaking ? "pause.circle.fill" : "play.circle.fill")
                             .resizable()
-                            .frame(width: 24, height: 24)
+                            .frame(width: 36, height: 36)
                             .foregroundColor(speechManager.isSpeaking ? .orange : .blue)
                     }
                     
@@ -111,7 +111,7 @@ struct ContentView: View {
                     }) {
                         Image(systemName: "stop.circle.fill")
                             .resizable()
-                            .frame(width: 24, height: 24)
+                            .frame(width: 36, height: 36)
                             .foregroundColor(.red)
                     }
                     
@@ -122,7 +122,7 @@ struct ContentView: View {
                             if pdfManager.totalPages > 0 {
                                 Slider(value: pageBinding, in: 0...Double(max(0, pdfManager.totalPages - 1)), step: 1)
                                     .controlSize(.small)
-                                    .frame(height: 18)
+                                    .frame(height: 27)
                                     .frame(width: 150)
                                 Text("\(pdfManager.currentPageIndex + 1)/\(pdfManager.totalPages)")
                                     .font(.caption2)
@@ -135,7 +135,7 @@ struct ContentView: View {
                             
                             Slider(value: $speechManager.rate, in: AVSpeechUtteranceMinimumSpeechRate...AVSpeechUtteranceMaximumSpeechRate)
                                 .controlSize(.small)
-                                .frame(height: 18)
+                                .frame(height: 27)
                             
                             Image(systemName: "hare.fill")
                                 .font(.caption2)
@@ -152,8 +152,8 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal, 8)
-                .padding(.vertical, 2)
-                .frame(height: 32)
+                .padding(.vertical, 3)
+                .frame(height: 48)
                 .background(Color(.secondarySystemBackground))
             }
             .navigationBarHidden(true)
